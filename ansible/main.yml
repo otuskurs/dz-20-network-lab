@@ -1,0 +1,121 @@
+---
+- hosts: allrouters
+  gather_facts: true
+  become: true
+  tasks:
+  - name: Включаем роутинг на машинах-роутерах
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/routesup/sysctl.conf
+     dest: /etc/sysctl.conf
+  - name: Принимаем значение
+    ansible.builtin.shell: | 
+     sysctl -p
+- hosts: inetRouter
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки inetRouter
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.2/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml  
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply  
+- hosts: centralRouter
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки centralRouter
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.3/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml  
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply  
+- hosts: office1Router
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки office1Router
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.4/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml 
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply   
+- hosts: office2Router
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки office2Router
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.5/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml   
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply         
+- hosts: centralServer
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки centralServer
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.6/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml 
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply    
+- hosts: office1Server
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки office1Server
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.7/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml  
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply   
+- hosts: office2Server
+  gather_facts: true
+  become: true
+  tasks:
+  - name: заливаем сетевые настройки office2Server
+    ansible.builtin.copy:
+     src: /root/dz-20-network-lab/192.168.10.8/50-cloud-init.yaml
+     dest: /etc/netplan/50-cloud-init.yaml   
+  - name: Принимаем значения 
+    ansible.builtin.shell: |
+     netplan --debug apply
+- hosts: centralServer
+  gather_facts: true
+  become: true
+  tasks:
+  - name: centralServer ping office1Server
+    ansible.builtin.shell: |
+     ping -c 5 192.168.1.2
+    register: check_status_ping_office1Server
+  - name: Выхлоп результата
+    ansible.builtin.debug: 
+      var: check_status_ping_office1Server.stdout_lines
+- hosts: office2Server
+  gather_facts: true
+  become: true
+  tasks:
+  - name: office2Server ping office1Server
+    ansible.builtin.shell: |
+     ping -c 5 192.168.0.2
+    register: check_status_ping_centralServer
+  - name: Выхлоп результата
+    ansible.builtin.debug: 
+      var: check_status_ping_centralServer.stdout_lines  
+  - name: office2Server ping office1Server
+    ansible.builtin.shell: |
+     ping -c 5 8.8.8.8
+    register: check_status_ping_inet
+  - name: Выхлоп результата
+    ansible.builtin.debug: 
+      var: check_status_ping_inet.stdout_lines 
