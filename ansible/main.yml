@@ -20,6 +20,9 @@
      dest: /etc/netplan/50-cloud-init.yaml  
   - name: Принимаем значения 
     ansible.builtin.shell: |
+  - name: настраиваем NAT
+    ansible.builtin.shell: |
+     iptables -t nat -A POSTROUTING -o ens18 -j MASQUERADE
      netplan --debug apply  
 - hosts: centralRouter
   gather_facts: true
